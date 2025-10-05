@@ -1,4 +1,5 @@
 import Elysia, { t } from "elysia";
+import { Prisma } from "~/generated/prisma";
 import { TodoService } from "~/services/todo_service";
 
 export const todoRoute = (todoService: TodoService) => {
@@ -10,8 +11,10 @@ export const todoRoute = (todoService: TodoService) => {
           const todos = await todoService.findAll();
           return status(200, { message: "get all todo", data: todos });
         } catch (e) {
-          // TODO: Add Log
-          return status(400, { message: "failed to get all todo" }); // TODO: Fix Status Code
+          if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            return status(400, { message: "failed to get all todo" });
+          }
+          return status(500, { message: "failed to get todo" });
         }
       },
       {
@@ -28,8 +31,13 @@ export const todoRoute = (todoService: TodoService) => {
           const todo = await todoService.findByID(id);
           return status(200, { message: "get todo by id", data: todo });
         } catch (e) {
-          // TODO: Add Log
-          return status(400, { message: "failed to get todo by id" }); // TODO: Fix Status Code
+          if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            if (e.code === "P2025") {
+              return status(404, { message: "not found" });
+            }
+            return status(400, { message: "failed to get todo by id" });
+          }
+          return status(500, { message: "failed to get todo by id" });
         }
       },
       {
@@ -52,8 +60,13 @@ export const todoRoute = (todoService: TodoService) => {
           });
           return status(201, { message: "todo created", data: todo });
         } catch (e) {
-          // TODO: Add Log
-          return status(400, { message: "failed to create new todo" }); // TODO: Fix Status Code
+          if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            if (e.code === "P2025") {
+              return status(404, { message: "not found" });
+            }
+            return status(400, { message: "failed to update todo by id" });
+          }
+          return status(500, { message: "failed to update todo by id" });
         }
       },
       {
@@ -77,8 +90,7 @@ export const todoRoute = (todoService: TodoService) => {
           const todo = await todoService.create(body.title, body.user_id);
           return status(201, { message: "todo created", data: todo });
         } catch (e) {
-          // TODO: Add Log
-          return status(400, { message: "failed to create new todo" }); // TODO: Fix Status Code
+          return status(500, { message: "failed to create new todo" });
         }
       },
       {
@@ -99,8 +111,13 @@ export const todoRoute = (todoService: TodoService) => {
           await todoService.findByID(id);
           return status(200, { message: "delete todo by id", data: null });
         } catch (e) {
-          // TODO: Add Log
-          return status(400, { message: "failed to delete todo by id" }); // TODO: Fix Status Code
+          if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            if (e.code === "P2025") {
+              return status(404, { message: "not found" });
+            }
+            return status(400, { message: "failed to delete todo by id" });
+          }
+          return status(500, { message: "failed to delete todo by id" });
         }
       },
       {
