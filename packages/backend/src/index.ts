@@ -2,10 +2,13 @@ import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { openapi } from "@elysiajs/openapi";
 import { todoRoute } from "~/routes/todo_route";
-import { TodoRepositoryImpl } from "./repositories/impl/todo_repository_impl";
-import { TodoServiceImpl } from "./services/impl/todo_service_impl";
+import { TodoRepositoryImpl } from "~/repositories/impl/todo_repository_impl";
+import { TodoServiceImpl } from "~/services/impl/todo_service_impl";
+import { PrismaClient } from "~/generated/prisma";
 
-const todoRepository = new TodoRepositoryImpl();
+const prismaClient = new PrismaClient();
+
+const todoRepository = new TodoRepositoryImpl(prismaClient);
 const todoService = new TodoServiceImpl(todoRepository);
 
 const app = new Elysia()

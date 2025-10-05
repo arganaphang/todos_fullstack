@@ -9,12 +9,15 @@ export class TodoServiceImpl implements TodoService {
     this.todoRepository = todoRepository;
   }
 
-  create(title: string): Promise<Todo> {
-    return this.todoRepository.create(title);
+  create(title: string, user_id: number): Promise<Todo> {
+    return this.todoRepository.create(title, user_id);
   }
 
-  update(todo: Todo): Promise<Todo> {
-    return this.todoRepository.update(todo);
+  update(
+    id: number,
+    body: { title: string; completed: boolean }
+  ): Promise<Todo> {
+    return this.todoRepository.update(id, body);
   }
 
   findAll(): Promise<Todo[]> {
